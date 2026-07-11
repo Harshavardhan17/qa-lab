@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beneficiaries &middot; Bank QA Lab</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<nav th:replace="~{fragments/nav :: topnav}"></nav>
+<main class="container">
+    <div th:replace="~{fragments/alerts :: alerts}"></div>
+    <h1 id="pageTitle">Beneficiaries</h1>
+
+    <table id="beneficiaryTable" class="grid">
+        <thead>
+        <tr><th>Name</th><th>Nickname</th><th>Bank</th><th>Account #</th><th>IFSC</th><th></th></tr>
+        </thead>
+        <tbody>
+        <tr class="benRow" th:each="b : ${beneficiaries}" th:attr="data-ben-id=${b.id}">
+            <td class="benName" th:text="${b.name}"></td>
+            <td th:text="${b.nickname}"></td>
+            <td th:text="${b.bankName}"></td>
+            <td class="benAccount" th:text="${b.accountNumber}"></td>
+            <td th:text="${b.ifsc}"></td>
+            <td>
+                <form th:action="@{/beneficiaries/{id}/delete(id=${b.id})}" method="post">
+                    <button class="deleteBen" type="submit">Delete</button>
+                </form>
+            </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(beneficiaries)}"><td colspan="6" class="muted">No beneficiaries yet.</td></tr>
+        </tbody>
+    </table>
+
+    <h2>Add beneficiary</h2>
+    <form id="addBeneficiaryForm" th:action="@{/beneficiaries}" method="post" class="card form">
+        <label for="benName">Name</label>
+        <input id="benName" name="name" type="text" required>
+        <label for="benNickname">Nickname</label>
+        <input id="benNickname" name="nickname" type="text">
+        <label for="benBank">Bank name</label>
+        <input id="benBank" name="bankName" type="text">
+        <label for="benAccount">Account number</label>
+        <input id="benAccount" name="accountNumber" type="text" required>
+        <label for="benIfsc">IFSC / routing</label>
+        <input id="benIfsc" name="ifsc" type="text">
+        <button id="addBeneficiary" type="submit">Add beneficiary</button>
+    </form>
+</main>
+</body>
+</html>

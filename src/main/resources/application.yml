@@ -1,0 +1,64 @@
+server:
+  port: 8080
+  error:
+    # Verbose errors are great for a QA learning how APIs respond to bad input.
+    include-message: always
+    include-binding-errors: always
+  tomcat:
+    threads:
+      max: 50
+      min-spare: 5
+
+spring:
+  application:
+    name: bank-qa-lab
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/bankqa}
+    username: ${DB_USERNAME:bankqa}
+    password: ${DB_PASSWORD:bankqa}
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 1
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+  thymeleaf:
+    cache: false
+
+app:
+  jwt:
+    # Demo secret. Overridden by JWT_SECRET env in Docker. Must be >= 32 bytes for HS256.
+    secret: ${JWT_SECRET:bank-qa-lab-demo-secret-key-change-me-0123456789-abcdefghij}
+    access-token-minutes: ${JWT_ACCESS_MINUTES:60}
+    refresh-token-days: ${JWT_REFRESH_DAYS:7}
+  seed:
+    # On first start (empty DB) the app inserts customers, accounts, transactions, cards, loans...
+    enabled: ${SEED_ENABLED:true}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+    display-request-duration: true
+  api-docs:
+    path: /v3/api-docs
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    org.springframework.security: INFO
+    com.bank.qalab: INFO

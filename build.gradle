@@ -1,0 +1,93 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.3.5'
+    id 'io.spring.dependency-management' version '1.1.6'
+}
+
+group = 'com.bank'
+version = '1.0.0'
+description = 'Bank QA Lab - a banking REST API + web UI for learning API testing, DB verification and Selenium'
+
+java {
+    toolchain {
+        // The Gradle toolchain will locate (or download) a JDK 21 for you.
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    seleniumVersion = '4.25.0'
+}
+
+dependencies {
+    // --- Web / REST API ---
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+    // --- Persistence (PostgreSQL) ---
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    runtimeOnly 'org.postgresql:postgresql'
+
+    // --- Security (JWT for API, form login for the web UI) ---
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+
+    // --- Server-rendered web UI (target for Selenium) ---
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+
+    // --- Interactive API docs (Swagger UI) ---
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
+
+    // --- Lombok (less boilerplate on entities) ---
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // --- Tests ---
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testRuntimeOnly 'com.h2database:h2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // --- Selenium UI tests (run against the running app) ---
+    testImplementation "org.seleniumhq.selenium:selenium-java:${seleniumVersion}"
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+}
+
+// Default `test` / `build` runs fast unit + context tests, but NEVER the browser (Selenium) tests.
+tasks.named('test') {
+    useJUnitPlatform {
+        excludeTags 'ui'
+    }
+}
+
+// Run the Selenium suite explicitly:  ./gradlew uiTest   (the app must already be running)
+tasks.register('uiTest', Test) {
+    description = 'Runs the Selenium browser tests. Requires the app to be running (default http://localhost:8080).'
+    group = 'verification'
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    useJUnitPlatform {
+        includeTags 'ui'
+    }
+    systemProperty 'app.base.url',
+            System.getProperty('app.base.url',
+                    System.getenv().getOrDefault('APP_BASE_URL', 'http://localhost:8080'))
+    systemProperty 'selenium.headless',
+            System.getProperty('selenium.headless',
+                    System.getenv().getOrDefault('SELENIUM_HEADLESS', 'true'))
+    outputs.upToDateWhen { false }
+}
+
+// Produce only the executable Spring Boot jar (no extra -plain.jar) so the Docker COPY is unambiguous.
+tasks.named('jar') {
+    enabled = false
+}

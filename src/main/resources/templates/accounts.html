@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accounts &middot; Bank QA Lab</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<nav th:replace="~{fragments/nav :: topnav}"></nav>
+<main class="container">
+    <div th:replace="~{fragments/alerts :: alerts}"></div>
+    <h1 id="pageTitle">Accounts</h1>
+
+    <table id="accountsTable" class="grid">
+        <thead>
+        <tr><th>Account #</th><th>Type</th><th>Status</th><th>Currency</th><th>Balance</th><th></th></tr>
+        </thead>
+        <tbody>
+        <tr class="accountRow" th:each="a : ${accounts}" th:attr="data-account-id=${a.id}">
+            <td class="acctNumber" th:text="${a.accountNumber}"></td>
+            <td class="acctType" th:text="${a.type}"></td>
+            <td class="acctStatus" th:text="${a.status}"></td>
+            <td th:text="${a.currency}"></td>
+            <td class="acctBalance" th:text="${a.balance}"></td>
+            <td><a class="accountLink" th:href="@{/accounts/{id}(id=${a.id})}">View statement</a></td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(accounts)}"><td colspan="6" class="muted">No accounts.</td></tr>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account &middot; Bank QA Lab</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<nav th:replace="~{fragments/nav :: topnav}"></nav>
+<main class="container">
+    <div th:replace="~{fragments/alerts :: alerts}"></div>
+    <h1 id="pageTitle">Account statement</h1>
+
+    <div class="card">
+        <div>Account #: <strong id="accountNumber" th:text="${account.accountNumber}"></strong></div>
+        <div>Type: <span id="accountType" th:text="${account.type}"></span></div>
+        <div>Status: <span id="accountStatus" th:text="${account.status}"></span></div>
+        <div>Balance: <strong id="accountBalance" th:text="${account.currency + ' ' + account.balance}"></strong></div>
+    </div>
+
+    <h2>Transactions</h2>
+    <table id="txnTable" class="grid">
+        <thead>
+        <tr><th>Date (UTC)</th><th>Type</th><th>Amount</th><th>Balance after</th><th>Description</th><th>Counterparty</th></tr>
+        </thead>
+        <tbody>
+        <tr class="txnRow" th:each="t : ${transactions}">
+            <td th:text="${t.createdAt}"></td>
+            <td class="txnType" th:text="${t.type}"></td>
+            <td class="txnAmount" th:text="${t.amount}"></td>
+            <td th:text="${t.balanceAfter}"></td>
+            <td th:text="${t.description}"></td>
+            <td th:text="${t.counterparty}"></td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(transactions)}"><td colspan="6" class="muted">No transactions.</td></tr>
+        </tbody>
+    </table>
+
+    <p style="margin-top:1rem"><a th:href="@{/accounts}">&larr; Back to accounts</a></p>
+</main>
+</body>
+</html>

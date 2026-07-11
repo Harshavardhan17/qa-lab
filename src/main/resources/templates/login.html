@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login &middot; Bank QA Lab</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="auth">
+<div class="card auth-card">
+    <h1 id="pageTitle">Bank QA Lab</h1>
+    <p class="muted" style="text-align:center">Online banking portal</p>
+
+    <div id="loginError" class="alert error" th:if="${param.error}">Invalid username or password.</div>
+    <div id="logoutMsg" class="alert info" th:if="${param.logout}">You have been logged out.</div>
+
+    <form th:action="@{/login}" method="post">
+        <label for="username">Username</label>
+        <input id="username" name="username" type="text" autocomplete="username" required autofocus>
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required>
+        <button id="loginBtn" type="submit">Sign in</button>
+    </form>
+
+    <div class="hint">
+        <strong>Demo logins</strong>
+        <ul>
+            <li>alice / Password123!</li>
+            <li>bob / Password123!</li>
+            <li>admin / admin123 (ADMIN)</li>
+        </ul>
+    </div>
+</div>
+</body>
+</html>

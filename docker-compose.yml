@@ -1,0 +1,59 @@
+name: bank-qa-lab
+
+services:
+  # ---------------- PostgreSQL database ----------------
+  db:
+    image: postgres:16-alpine
+    container_name: bankqa-db
+    environment:
+      POSTGRES_DB: bankqa
+      POSTGRES_USER: bankqa
+      POSTGRES_PASSWORD: bankqa
+    ports:
+      - "${DB_PORT:-5432}:5432"     # exposed so you can verify data with any SQL client
+    volumes:
+      - bankqa-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bankqa -d bankqa"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    mem_limit: 256m
+    restart: unless-stopped
+
+  # ---------------- Spring Boot banking API + web UI ----------------
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bankqa-app
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/bankqa
+      DB_USERNAME: bankqa
+      DB_PASSWORD: bankqa
+      JWT_SECRET: bank-qa-lab-demo-secret-key-change-me-0123456789-abcdefghij
+      SEED_ENABLED: "true"
+      JAVA_OPTS: "-Xms128m -Xmx384m -XX:+UseSerialGC"
+    ports:
+      - "${APP_PORT:-8080}:8080"    # REST API + Swagger UI + web UI
+    mem_limit: 768m
+    restart: unless-stopped
+
+  # ---------------- Adminer: zero-install DB browser (optional, tiny) ----------------
+  adminer:
+    image: adminer:4-standalone
+    container_name: bankqa-adminer
+    depends_on:
+      - db
+    ports:
+      - "${ADMINER_PORT:-8081}:8080"  # open http://localhost:8081 (System=PostgreSQL, Server=db)
+    environment:
+      ADMINER_DEFAULT_SERVER: db
+    mem_limit: 128m
+    restart: unless-stopped
+
+volumes:
+  bankqa-pgdata:

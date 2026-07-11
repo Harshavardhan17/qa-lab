@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transfer &middot; Bank QA Lab</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<nav th:replace="~{fragments/nav :: topnav}"></nav>
+<main class="container">
+    <div th:replace="~{fragments/alerts :: alerts}"></div>
+    <h1 id="pageTitle">Transfer money</h1>
+    <p class="muted">Send to another internal account number, or pick a saved beneficiary.</p>
+
+    <form id="transferForm" th:action="@{/transfer}" method="post" class="card form">
+        <label for="fromAccount">From account</label>
+        <select id="fromAccount" name="fromAccountId" required>
+            <option th:each="a : ${accounts}" th:value="${a.id}"
+                    th:text="${a.accountNumber + '  (' + a.currency + ' ' + a.balance + ')'}"></option>
+        </select>
+
+        <label for="toAccountNumber">To account number (internal transfer)</label>
+        <input id="toAccountNumber" name="toAccountNumber" type="text" placeholder="e.g. AC1000000003">
+
+        <label for="beneficiary">Or pay a beneficiary (external)</label>
+        <select id="beneficiary" name="beneficiaryId">
+            <option value="">-- none --</option>
+            <option th:each="b : ${beneficiaries}" th:value="${b.id}"
+                    th:text="${b.name + ' (' + b.accountNumber + ')'}"></option>
+        </select>
+
+        <label for="amount">Amount</label>
+        <input id="amount" name="amount" type="number" step="0.01" min="0.01" required>
+
+        <label for="description">Description</label>
+        <input id="description" name="description" type="text" placeholder="Optional note">
+
+        <button id="submitTransfer" type="submit">Send transfer</button>
+    </form>
+</main>
+</body>
+</html>

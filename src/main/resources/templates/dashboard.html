@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard &middot; Bank QA Lab</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<nav th:replace="~{fragments/nav :: topnav}"></nav>
+<main class="container">
+    <div th:replace="~{fragments/alerts :: alerts}"></div>
+
+    <h1 id="pageTitle">Dashboard</h1>
+    <p>Welcome, <span id="welcomeUser" sec:authentication="name">user</span>.</p>
+
+    <div class="cards">
+        <div class="card">
+            <div class="card-label">Total balance (USD)</div>
+            <div id="totalBalance" class="card-value" th:text="${totalBalance}">0.00</div>
+        </div>
+        <div class="card">
+            <div class="card-label">Accounts</div>
+            <div id="accountCount" class="card-value" th:text="${#lists.size(accounts)}">0</div>
+        </div>
+    </div>
+
+    <h2>Your accounts</h2>
+    <table id="accountsTable" class="grid">
+        <thead>
+        <tr><th>Account #</th><th>Type</th><th>Status</th><th>Balance</th><th></th></tr>
+        </thead>
+        <tbody>
+        <tr class="accountRow" th:each="a : ${accounts}" th:attr="data-account-id=${a.id}">
+            <td class="acctNumber" th:text="${a.accountNumber}"></td>
+            <td class="acctType" th:text="${a.type}"></td>
+            <td class="acctStatus" th:text="${a.status}"></td>
+            <td class="acctBalance" th:text="${a.currency + ' ' + a.balance}"></td>
+            <td><a class="accountLink" th:href="@{/accounts/{id}(id=${a.id})}">View</a></td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(accounts)}"><td colspan="5" class="muted">No accounts.</td></tr>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>
